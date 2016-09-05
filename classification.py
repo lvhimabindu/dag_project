@@ -12,6 +12,7 @@ from sklearn.cross_validation import StratifiedKFold
 
 # custom classes import
 from my_exceptions import MyError
+from readwritefiles import readCSV, writeCSV
 
 ''' Helper class for learner. This class encapsulates all the necessary information to run a classification model from sklearn '''
 ''' Note: 
@@ -104,7 +105,23 @@ class classification(object):
 		# computes the AUC score given true values of Y and predicted Y scores. 
 		y_preds, y_labels, indices = self.runCVModel(datapathorarr)
 		correctness = [1 if y_preds[i]==y_labels[i] else 0 for i in indices]
-		return (sum(correctness)+0.0)/len(indices)
+		return (sum(correctness)+0.0)/len(indices), y_preds, indices
+
+
+	def printPredictions(self, datapathorarr):
+
+		# reads the file, runs the classification model and appends predictions in the last column to the same file
+		acc, y_preds, indices = self.getCVAUC(datapathorarr)
+		print ("Cross Validated Accuracy is: "+str(acc))
+
+		# read csv
+		header_names, lines = readCSV(datapathorarr)
+		newlines = []
+		for l in range(len(lines)):
+			newlines.append(lines[l]+[y_preds[indices.index(l)]])
+
+		writeCSV(newlines, header_names+['predicted_label'], datapathorarr)
+
 
 
 	def readTrainingData(self, filepath):

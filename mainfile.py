@@ -12,4 +12,4 @@ from classification import classification
 train_data_obj = TrainingData(3, 8, 2, 10, 0.7, 1.0, 5, 100)
 train_data_obj.genDatapointsLabels("temp.csv")
 class_obj = classification("Random Forest")
-print(class_obj.getCVAUC("temp.csv"))
+class_obj.printPredictions("temp.csv")
