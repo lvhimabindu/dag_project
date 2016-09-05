@@ -28,9 +28,9 @@ class Algorithm(object):
 	
 
 ''' main starts below, explaining interface to the class '''
-adj_mat = np.zeros((3,3), dtype=np.int)
+'''adj_mat = np.zeros((3,3), dtype=np.int)
 adj_mat[0,2] = 1
 adj_mat[2,1] = 1
 job_time = [3, 5, 5]
 alg_obj = Algorithm(2)
-print (alg_obj.findBestAlgo(adj_mat, job_time))
+print (alg_obj.findBestAlgo(adj_mat, job_time))'''

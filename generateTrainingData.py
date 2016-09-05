@@ -4,6 +4,8 @@ import random
 
 from my_exceptions import MyError
 from topologicalsort import TopoSort
+from Algorithm import Algorithm
+from readwritefiles import writeCSV
 
 ''' 
 Class designed to fix a graph to be acyclic (DAG) as well as return topological ordering of the graph
@@ -42,7 +44,7 @@ class TrainingData(object):
 		
 		algo_obj = Algorithm(self.num_machines)
 
-		for i in range(num_data_points):
+		for i in range(self.num_data_points):
 
 			# randomly pick the probability of edge formation for this particular graph 
 			prob_edge = random.uniform(self.min_prob_edge, self.max_prob_edge)
@@ -57,9 +59,9 @@ class TrainingData(object):
 			features = self.genFeatVector(mat, self.num_jobs_arr[i], self.job_time_arr[i], topo_sorted_list)
 
 			# append the newly created feature vector and the best alg. index to the training data
-			self.training_data.append(features+[best_alg])
+			self.training_data.append(features+[prob_edge]+[best_alg])
 
-		writeCSV(self.training_data, ['min. in deg', 'max. in deg', 'min. out deg', 'max. out deg', 'avg. deg', 'min job time', 'max job time', 'avg. job time', 'min path', 'max path', 'label'], filepath)
+		writeCSV(self.training_data, ['min. in deg', 'max. in deg', 'min. out deg', 'max. out deg', 'avg. deg', 'min job time', 'max job time', 'avg. job time', 'min path', 'max path', 'prob_edge', 'label'], filepath)
 
 
 	def genFeatVector(self, mat, num_jobs, job_time_list, topo_sorted_list):
@@ -94,19 +96,36 @@ class TrainingData(object):
 		max_job_time = max(job_time_list)
 		avg_job_time = (sum(job_time_list)+0.0)/num_jobs
 
-		# compute min., max path
-		max_path = 0
-		min_path = max_job_time * num_jobs
+		# compute min., max path length (path length is computed accounting for the job times)
 
-		# use the topo sorted list to identify the longest and shortest paths
-		def getParents(self, s):
-		parents = []
-		for i in range(self.N):
-				if self.mat[i, s] == 1:
-					parents.append(i)
-		return parents
+		min_path_job_length, max_path_job_length = self.topo_path_lengths(mat, num_jobs, job_time_list, topo_sorted_list)
 
 		return [min_in_degree, max_in_degree, min_out_degree, max_out_degree, avg_degree, min_job_time, max_job_time, avg_job_time, min_path_job_length, max_path_job_length]
+
+	def incomingneighbors(self, i, mat, num_jobs):
+
+		neighbors = []
+		for j in range(num_jobs):
+			if mat[j, i] == 1:
+				neighbors.append(j)
+
+		return neighbors
+
+	def topo_path_lengths(self, mat, num_jobs, job_time_list, topo_sorted_list):
+
+		min_path_lengths = [item for item in job_time_list]
+		max_path_lengths = [item for item in job_time_list]
+
+		for i in topo_sorted_list:
+
+			neighbors_i = self.incomingneighbors(i, mat, num_jobs)
+			min_path_lengths_i = [min_path_lengths[j] + min_path_lengths[i] for j in neighbors_i] + [min_path_lengths[i]]  # appending an element in case list is empty
+			max_path_lengths_i = [max_path_lengths[j] + max_path_lengths[i] for j in neighbors_i] + [max_path_lengths[i]]
+
+			min_path_lengths[i] = min(min_path_lengths_i)
+			max_path_lengths[i] = max(max_path_lengths_i) 
+
+		return min(min_path_lengths), max(max_path_lengths)
 
 
 	def genAdjMatrix(self, prob_edge, num_jobs):
@@ -133,4 +152,5 @@ class TrainingData(object):
 
 ''' MAIN CODE TO TEST THE CLASS '''
 
-train_data_obj = TrainingData(10, 2, 5, 1000)
+train_data_obj = TrainingData(3, 8, 2, 10, 0.7, 1.0, 5, 100)
+train_data_obj.genDatapointsLabels("temp.csv")

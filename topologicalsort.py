@@ -51,8 +51,6 @@ class TopoSort(object):
 			unmarked = set(range(N)) - set(perm_marked)
 			s = random.sample(unmarked, 1)[0]
 
-			print (s)
-
 			rval = visit(s, L, perm_marked, temp_marked)
 
 			if rval == - 1:
@@ -68,8 +66,8 @@ class TopoSort(object):
 
 
 ''' MAIN CODE TO TEST THE CLASS '''
-mat = np.array([[0, 1, 1, 0], [0, 0, 0, 1], [0, 0, 0, 0], [1, 0, 0, 0]])
+'''mat = np.array([[0, 1, 1, 0], [0, 0, 0, 1], [0, 0, 0, 0], [1, 0, 0, 0]])
 t_obj = TopoSort(mat, 4)
 print (t_obj.getDAG())
 print (t_obj.getTopoSorted())
-#print (t_obj.getParents(3))
+#print (t_obj.getParents(3))'''
