@@ -59,9 +59,9 @@ class TrainingData(object):
 			features = self.genFeatVector(mat, self.num_jobs_arr[i], self.job_time_arr[i], topo_sorted_list)
 
 			# append the newly created feature vector and the best alg. index to the training data
-			self.training_data.append(features+[prob_edge]+[best_alg])
+			self.training_data.append(features+[self.num_jobs_arr[i]]+[prob_edge]+[best_alg])
 
-		writeCSV(self.training_data, ['min. in deg', 'max. in deg', 'min. out deg', 'max. out deg', 'avg. deg', 'min job time', 'max job time', 'avg. job time', 'min path', 'max path', 'prob_edge', 'label'], filepath)
+		writeCSV(self.training_data, ['min. in deg', 'max. in deg', 'min. out deg', 'max. out deg', 'avg. deg', 'min job time', 'max job time', 'avg. job time', 'min path', 'max path', 'num_jobs', 'prob_edge', 'label'], filepath)
 
 
 	def genFeatVector(self, mat, num_jobs, job_time_list, topo_sorted_list):
@@ -149,8 +149,3 @@ class TrainingData(object):
 
 		return topo_obj.getDAG(), topo_obj.getTopoSorted()
 		
-
-''' MAIN CODE TO TEST THE CLASS '''
-
-train_data_obj = TrainingData(3, 8, 2, 10, 0.7, 1.0, 5, 100)
-train_data_obj.genDatapointsLabels("temp.csv")

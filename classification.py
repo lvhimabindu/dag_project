@@ -24,7 +24,7 @@ class classification(object):
 
 	# shared objects between all objects of the class (we dont change these anyway)
 	names = ["Nearest Neighbors", "Linear SVM", "RBF SVM", "Decision Tree", "Random Forest", "AdaBoost", "Naive Bayes", "Logistic Regression"]
-	classifiers = [ KNeighborsClassifier(10), SVC(kernel="linear", C=0.025, probability=True), SVC(gamma=2, C=1, probability=True), DecisionTreeClassifier(min_samples_leaf=30), RandomForestClassifier(max_depth=5, n_estimators=10, max_features=1), AdaBoostClassifier(), GaussianNB(), LogisticRegression(C=1e5)]
+	classifiers = [ KNeighborsClassifier(10), SVC(kernel="linear", C=0.025, probability=True), SVC(gamma=2, C=1, probability=True), DecisionTreeClassifier(min_samples_leaf=10), RandomForestClassifier(min_samples_leaf=10, n_estimators=25), AdaBoostClassifier(), GaussianNB(), LogisticRegression(C=1e5)]
 
 	# chosen model should be a string belonging to one of the "names" above. The constructor function creates the appropriate classifier object and assigns it to self.clf
 	def __init__(self, chosen_model):
@@ -58,12 +58,9 @@ class classification(object):
 		X = dataset[:,0:colnum]
 		Y = dataset[:,colnum]
 
-		# class labels go from 1 to C. Decrementing this by 1 to make sure that we have class labels 0 to C-1.
-		Y = np.array([a-1 for a in Y])
-
 		self.clf.fit(X, Y)
 
-		return self.clf, self.clf.predict(X), self.clf.predict_proba(X)[:,1]
+		return self.clf, self.clf.predict(X)
 
 
 	# run the Model with the data set as an argument, dataset should be a 2d np array with last column being labels
@@ -87,28 +84,27 @@ class classification(object):
 		#scores = cross_validation.cross_val_predict(self.clf, Xvals, Yvals, cv=10)
 		skf = StratifiedKFold(Y, n_folds=10, shuffle=True)
 
-		pred_scores = []
-		true_scores = []
 		indices = []
 		pred_labels = []
+		true_labels = []
 
 		for train_index, test_index in skf:
 			X_train, X_test = X[train_index], X[test_index]
 			Y_train, Y_test = Y[train_index], Y[test_index]
 			self.clf.fit(X_train, Y_train)
-			pred_scores += list(self.clf.predict_proba(X_test)[:,1])
 			pred_labels += list(self.clf.predict(X_test))
-			true_scores += list(Y_test)
+			true_labels += list(Y_test)
 			indices += list(test_index)
 
-		return true_scores, pred_scores, pred_labels, indices
+		return pred_labels, true_labels, indices
 
 
 	def getCVAUC(self, datapathorarr):
 
 		# computes the AUC score given true values of Y and predicted Y scores. 
-		y_true, y_scores, y_labels, indices = self.runCVModel(datapathorarr)
-		return roc_auc_score(y_true, y_scores)
+		y_preds, y_labels, indices = self.runCVModel(datapathorarr)
+		correctness = [1 if y_preds[i]==y_labels[i] else 0 for i in indices]
+		return (sum(correctness)+0.0)/len(indices)
 
 
 	def readTrainingData(self, filepath):
