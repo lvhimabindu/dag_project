@@ -72,7 +72,7 @@ def writeCSV(writeLines, headernames, filepath):
 		for row in writeLines:
 			writer.writerow(row)
 
-if __name__ == '__main__':
+'''if __name__ == '__main__':
 
 	headers1, CSV1 = readCSV("../rt-polaritydata/fulldata_randomized.csv")
 	print (headers1)
@@ -86,5 +86,5 @@ if __name__ == '__main__':
 
 	List3 = readListfromFile("../rt-polaritydata/fulldata_randomized.csv")
 	print (List3)
-	writeListInFile(List3, "../rt-polaritydata/test-writelines.csv")
+	writeListInFile(List3, "../rt-polaritydata/test-writelines.csv")'''
 	
